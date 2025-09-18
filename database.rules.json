@@ -1,0 +1,78 @@
+
+{
+  "rules": {
+    "users": {
+      ".indexOn": ["email", "isAdmin", "referralCode"],
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
+      }
+    },
+    "receipts": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "orders": {
+      ".indexOn": ["userId"],
+      ".read": "auth != null",
+      "$orderId": {
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('isAdmin').val() === true || (newData.child('userId').val() === auth.uid))"
+      }
+    },
+    "referralCodes": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "withdrawals": {
+      ".indexOn": ["userId", "date"],
+      ".read": "auth != null",
+      "$withdrawalId": {
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true"
+      }
+    },
+    "tickets": {
+      ".indexOn": ["userId", "createdAt"],
+      ".read": "auth != null",
+      "$ticketId": {
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true",
+        ".write": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        "messages": {
+          ".write": "auth != null && (data.parent().child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
+        },
+        "userHasRead": {
+          ".write": "auth != null && (data.parent().child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)"
+        }
+      }
+    },
+    "depositInfo": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+    },
+    "admin-notifications": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true",
+      ".indexOn": ["timestamp"]
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && $uid === auth.uid",
+        ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('isAdmin').val() === true)",
+        ".indexOn": ["timestamp"]
+      }
+    },
+    "announcements": {
+      "$uid": {
+        ".read": "auth != null && $uid === auth.uid",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('isAdmin').val() === true"
+      }
+    }
+  }
+}
